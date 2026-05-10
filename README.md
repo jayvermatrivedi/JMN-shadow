@@ -1,31 +1,249 @@
-# JMN Shadow and Ray Tracing in Mathematica and Python
+# JMN Shadow Reproduction Toolkit
 
-This repository ports a Mathematica implementation of null geodesics, shadow formation, and radiative transfer in the Schwarzschild and Joshi-Malafarina-Narayan (JMN1) spacetimes to a modular Python codebase. The reference paper in this folder is:
+This repository is a beginner-friendly reproduction package for the paper:
 
-- Ashok B. Joshi, Dipanjan Dey, Pankaj S. Joshi, and Parth Bambhaniya, *Shadow of a naked singularity without photon sphere*, Phys. Rev. D **102**, 024022 (2020), DOI: `10.1103/PhysRevD.102.024022`.
+- Ashok B. Joshi, Dipanjan Dey, Pankaj S. Joshi, and Parth Bambhaniya, *Shadow of a naked singularity without photon sphere*, Phys. Rev. D **102**, 024022 (2020)
+- DOI: `10.1103/PhysRevD.102.024022`
 
-The Python examples reproduce the Schwarzschild plots corresponding to Figure 2(a) and Figure 2(b), and the JMN1 plots corresponding to Figure 2(c) and Figure 2(d), of that paper.
+It contains:
 
-## Scientific Motivation
+- a cleaned Python implementation for the Schwarzschild and JMN1 cases
+- a renamed copy of the original Mathematica notebook from this project
+- a commented Mathematica `.wl` script that explains the workflow step by step
+- a Google Colab notebook for users who do not want to install Python locally
 
-The central question is whether compact objects with naked singularities can produce observational signatures that differ from black holes. In the paper, the authors compare:
+Open directly in Colab:
 
-- Schwarzschild black holes
-- JMN1 naked singularities
-- a second asymptotically flat naked singularity without a photon sphere
+- `https://colab.research.google.com/github/jayvermatrivedi/JMN-shadow/blob/main/notebooks/JMN_Shadow_Google_Colab.ipynb`
 
-This Python repository currently implements the Schwarzschild and JMN1 cases only. The second naked-singularity model from the paper is intentionally left out.
+The repository currently supports:
 
-The observable is the intensity pattern on the observer sky produced by light emitted from an optically thin, spherically symmetric, freely infalling accretion flow. The shadow is the dark central region associated with geodesics that cannot connect the bright background to the observer in the usual way.
+- Figure 2(a): Schwarzschild intensity profile
+- Figure 2(b): Schwarzschild shadow image
+- Figure 2(c): JMN1 intensity profile with `M0 = 0.7`
+- Figure 2(d): JMN1 shadow image with `M0 = 0.7`
+
+It does **not** currently implement the second naked-singularity model from the paper.
+
+## Start Here
+
+If you are new to GitHub or scientific code, use one of these three paths:
+
+### Option 1: Easiest, use Google Colab
+
+1. Open the notebook:
+   [notebooks/JMN_Shadow_Google_Colab.ipynb](notebooks/JMN_Shadow_Google_Colab.ipynb)
+2. Upload that notebook to Google Colab, or copy its cells into a new Colab notebook.
+3. Run the cells from top to bottom.
+
+This requires no local Python installation.
+
+### Option 2: Run locally with Python
+
+If you already have Python installed:
+
+```bash
+git clone https://github.com/jayvermatrivedi/JMN-shadow.git
+cd JMN-shadow
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python examples/run_all_figures.py
+```
+
+If you are on Windows PowerShell, use:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+This will generate all four supported figures in the `figures/` folder.
+
+### Option 3: Read or run the Mathematica version
+
+Open these files:
+
+- Original notebook, renamed for clarity:
+  [mathematica/jmn1_shadow_reproduction_m0p7_original.nb](mathematica/jmn1_shadow_reproduction_m0p7_original.nb)
+- Explained Mathematica script:
+  [mathematica/jmn1_shadow_reproduction_explained.wl](mathematica/jmn1_shadow_reproduction_explained.wl)
+- Mathematica walkthrough:
+  [docs/MATHEMATICA_WALKTHROUGH.md](docs/MATHEMATICA_WALKTHROUGH.md)
+
+If you only want to understand what the Mathematica code is doing, start with the walkthrough file.
+
+## Repository Layout
+
+```text
+JMN-shadow/
+|
+|-- README.md
+|-- requirements.txt
+|-- LICENSE
+|
+|-- src/
+|   |-- metric.py
+|   |-- geodesics.py
+|   |-- intensity.py
+|   |-- shadow.py
+|   |-- raytracing.py
+|   `-- utils.py
+|
+|-- examples/
+|   |-- reproduce_figure2a.py
+|   |-- reproduce_figure2b.py
+|   |-- reproduce_figure2c.py
+|   |-- reproduce_figure2d.py
+|   `-- run_all_figures.py
+|
+|-- figures/
+|   `-- output images are saved here
+|
+|-- notebooks/
+|   `-- JMN_Shadow_Google_Colab.ipynb
+|
+|-- mathematica/
+|   |-- jmn1_shadow_reproduction_m0p7_original.nb
+|   `-- jmn1_shadow_reproduction_explained.wl
+|
+|-- docs/
+|   `-- MATHEMATICA_WALKTHROUGH.md
+|
+`-- reference/
+    `-- joshi_2020_shadow_of_a_naked_singularity_without_photon_sphere.pdf
+```
+
+## What Each Python File Does
+
+### [src/metric.py](src/metric.py)
+
+Defines the spacetime metric functions:
+
+- Schwarzschild metric
+- JMN1 interior metric
+- JMN1 exterior Schwarzschild matching
+
+### [src/geodesics.py](src/geodesics.py)
+
+Implements:
+
+- effective potential
+- turning-point impact parameter
+- radial null momentum
+- redshift factor for infalling emitters
+
+### [src/intensity.py](src/intensity.py)
+
+Implements the radiative transfer prescription from the paper:
+
+- emissivity
+- branchwise redshift/blueshift intensity integrands
+- observed intensity profile `I_o(b)` for Schwarzschild and JMN1
+
+### [src/shadow.py](src/shadow.py)
+
+Defines the circular shadow boundaries:
+
+- Schwarzschild shadow radius `3 sqrt(3) M`
+- JMN1 shadow radius inherited from the exterior Schwarzschild photon sphere
+
+### [src/raytracing.py](src/raytracing.py)
+
+Builds the 2D observer-sky image from the 1D radial intensity profile.
+
+## Exact Commands To Run
+
+### Local Python: generate all figures
+
+```bash
+python examples/run_all_figures.py
+```
+
+Expected output files:
+
+- `figures/figure2a_schwarzschild_profile.png`
+- `figures/figure2b_schwarzschild_shadow.png`
+- `figures/figure2c_jmn1_profile.png`
+- `figures/figure2d_jmn1_shadow.png`
+
+### Local Python: generate only one figure
+
+Schwarzschild intensity profile:
+
+```bash
+python examples/reproduce_figure2a.py
+```
+
+Schwarzschild shadow image:
+
+```bash
+python examples/reproduce_figure2b.py
+```
+
+JMN1 intensity profile:
+
+```bash
+python examples/reproduce_figure2c.py
+```
+
+JMN1 shadow image:
+
+```bash
+python examples/reproduce_figure2d.py
+```
+
+## Google Colab Instructions
+
+If you have never used Colab before, follow these exact steps:
+
+1. Go to `https://colab.research.google.com`
+2. Create a new notebook
+3. Open this repository notebook:
+   [notebooks/JMN_Shadow_Google_Colab.ipynb](notebooks/JMN_Shadow_Google_Colab.ipynb)
+4. Copy the cells into Colab, or upload the notebook file
+5. Run each cell from top to bottom
+
+The Colab notebook will:
+
+1. clone the GitHub repository
+2. install the required packages
+3. generate the four supported figures
+4. display them inside the notebook
+
+## Mathematica Instructions
+
+If you want the original project source:
+
+- open [mathematica/jmn1_shadow_reproduction_m0p7_original.nb](mathematica/jmn1_shadow_reproduction_m0p7_original.nb)
+
+If you want a readable version:
+
+- open [mathematica/jmn1_shadow_reproduction_explained.wl](mathematica/jmn1_shadow_reproduction_explained.wl)
+
+If you want a plain-English explanation of each block:
+
+- read [docs/MATHEMATICA_WALKTHROUGH.md](docs/MATHEMATICA_WALKTHROUGH.md)
 
 ## Physics Summary
 
-### 1. JMN1 metric used in the code
+This repository reproduces the shadow calculation for a spherically symmetric, optically thin accretion flow in two spacetimes:
 
-The Mathematica notebook uses the JMN1 interior metric in the form
+- Schwarzschild black hole
+- JMN1 naked singularity spacetime matched to a Schwarzschild exterior
+
+The key ideas are:
+
+- light rays are traced using null geodesics
+- the turning point is determined by the impact parameter
+- the observed intensity is computed by integrating the emissivity along the ray
+- the shadow is the dark central region in the observer sky
+
+### JMN1 metric used here
+
+The JMN1 interior metric is
 
 \[
-ds^2 = -A_{\rm int}(r)\,dt^2 + B_{\rm int}(r)\,dr^2 + r^2 d\Omega^2,
+ds^2 = -A_{\rm int}(r)\,dt^2 + B_{\rm int}(r)\,dr^2 + r^2 d\Omega^2
 \]
 
 with
@@ -33,15 +251,10 @@ with
 \[
 A_{\rm int}(r) = (1-M_0)\left(\frac{r}{R_b}\right)^{\frac{M_0}{1-M_0}},
 \qquad
-B_{\rm int}(r) = \frac{1}{1-M_0}.
+B_{\rm int}(r)=\frac{1}{1-M_0}.
 \]
 
-This is paper Eq. (19). In the notebook:
-
-- `M0 = 0.7`
-- `rb = 2/M0 = 2.857142857...`
-
-The JMN1 interior is matched to an exterior Schwarzschild region at `r = R_b`, with
+The exterior is Schwarzschild with
 
 \[
 A_{\rm ext}(r)=1-\frac{M_0 R_b}{r},
@@ -49,328 +262,70 @@ A_{\rm ext}(r)=1-\frac{M_0 R_b}{r},
 B_{\rm ext}(r)=\left(1-\frac{M_0 R_b}{r}\right)^{-1}.
 \]
 
-Because the notebook sets `R_b = 2/M0`, the exterior mass is
-
-\[
-M_T = \frac{M_0 R_b}{2}=1,
-\]
-
-so the exterior metric reduces numerically to Schwarzschild with
-
-\[
-A_{\rm ext}(r)=1-\frac{2}{r}, \qquad B_{\rm ext}(r)=\left(1-\frac{2}{r}\right)^{-1}.
-\]
-
-### 1b. Schwarzschild metric used in the code
-
-For the Schwarzschild reference case, the code uses
-
-\[
-ds^2 = -\left(1-\frac{2M}{r}\right)dt^2
-\;+\; \left(1-\frac{2M}{r}\right)^{-1}dr^2
-\;+\; r^2 d\Omega^2,
-\]
-
-with `M = 1` for the Figure 2(a)/(b) reproduction.
-
-### 2. Meaning of the parameters
-
-- `M0`: dimensionless JMN1 parameter, with `0 < M0 < 1`
-- `Rb` or `rb`: matching radius between the JMN1 interior and exterior Schwarzschild geometry
-- `M_T`: Schwarzschild mass of the exterior region
-- `b = h/\gamma`: impact parameter of the photon
-- `r_tp`: turning-point radius
-- `r_ph`: photon-sphere radius
-
-For the notebook and for Figure 2(c)/(d):
+For the repository default case:
 
 - `M0 = 0.7`
-- `Rb = 2.857142857...`
-- `M_T = 1`
-- `r_ph = 3`
-- `b_ph = 3\sqrt{3} = 5.1961524227...`
+- `Rb = 2 / M0`
+- `M_T = M0 Rb / 2 = 1`
 
-For the Schwarzschild case used in Figure 2(a)/(b):
+### Main observables
 
-- `M = 1`
-- `r_h = 2`
-- `r_ph = 3`
-- `b_ph = 3\sqrt{3} = 5.1961524227...`
+- Schwarzschild photon-sphere shadow radius:
+  \[
+  b_{\rm ph}=3\sqrt{3}M
+  \]
+- JMN1 shadow radius in the supported case:
+  \[
+  b_{\rm ph}=3\sqrt{3}M_T
+  \]
 
-### 3. Null geodesics and effective potential
+## Figure Mapping
 
-The paper uses the general static, spherically symmetric metric
+### Supported now
 
-\[
-ds^2 = -g_{tt}(r)\,dt^2 + g_{rr}(r)\,dr^2 + r^2 d\Omega^2,
-\]
+- Figure 2(a): Schwarzschild intensity profile
+- Figure 2(b): Schwarzschild shadow image
+- Figure 2(c): JMN1 intensity profile with `M0 = 0.7`
+- Figure 2(d): JMN1 shadow image with `M0 = 0.7`
 
-and in the equatorial plane the null geodesics satisfy paper Eq. (22):
+### Not included yet
 
-\[
-g_{tt}g_{rr}\left(\frac{dr}{d\lambda}\right)^2 = \frac{1}{b^2} - V_{\rm eff}(r),
-\qquad
-V_{\rm eff}(r)=\frac{g_{tt}(r)}{r^2}.
-\]
+- Figure 2(e)
+- Figure 2(f)
 
-The notebook implements the radial momentum magnitude as
+Those correspond to the second naked-singularity spacetime and are intentionally excluded from the current Python implementation.
 
-\[
-k^r = \sqrt{\frac{g_{tt}}{g_{rr}}\left(1-\frac{g_{tt}b^2}{r^2}\right)},
-\]
+## Common Problems
 
-through the definitions:
+### `python: command not found`
 
-- `krtint` for the JMN1 interior
-- `krtext` for the Schwarzschild exterior
+Use `python3` instead of `python`.
 
-These are the exact algebraic expressions used in `src/geodesics.py`.
+### `ModuleNotFoundError`
 
-### 4. Impact parameters and photon sphere
-
-At a turning point, paper Eq. (23) gives
-
-\[
-b_{\rm tp} = \frac{r_{\rm tp}}{\sqrt{g_{tt}(r_{\rm tp})}}.
-\]
-
-For the exterior Schwarzschild region with `M_T = 1`,
-
-\[
-r_{\rm ph}=3, \qquad b_{\rm ph}=3\sqrt{3}.
-\]
-
-Since the notebook works with `M0 = 0.7 > 2/3`, the JMN1 spacetime has an effective photon sphere in the exterior Schwarzschild region. That is exactly why the notebook starts the exterior turning-point branch at
-
-- `5.196152422706632`
-
-which is `3 sqrt(3)`, the critical impact parameter.
-
-### 5. Redshift factor and infalling matter
-
-The paper assumes a spherically symmetric, radially freely falling emitter. Its four-velocity is paper Eq. (29):
-
-\[
-u^t_e = \frac{1}{g_{tt}},
-\qquad
-u^r_e = -\sqrt{\frac{1-g_{tt}}{g_{tt}g_{rr}}},
-\qquad
-u^\theta_e=u^\phi_e=0.
-\]
-
-The observed redshift factor is paper Eqs. (30)-(31):
-
-\[
-g = \frac{\nu_o}{\nu_e}
-=
-\left[
-\frac{1}{g_{tt}}
-\pm
-k^r\frac{g_{rr}}{g_{tt}}
-\sqrt{\frac{1-g_{tt}}{g_{tt}g_{rr}}}
-\right]^{-1},
-\]
-
-with the `+` branch corresponding to the outgoing part of the ray after the turning point and the `-` branch to the incoming part before the turning point. In the notebook these are:
-
-- `gintredshift`
-- `greddhift` (typo in notebook name, but this is the exterior redshift branch)
-- `gblueshift`
-
-### 6. Emissivity and observed intensity
-
-The emissivity prescription in the paper is
-
-\[
-j(\nu_e) \propto \frac{\delta(\nu_e-\nu_*)}{r^2},
-\]
-
-which is paper Eq. (26). After integrating over observed frequency, paper Eq. (32) gives
-
-\[
-I_o(X,Y)\propto -\int_\gamma \frac{g^3 k_t}{r^2 k^r}\,dr,
-\qquad X^2+Y^2=b^2.
-\]
-
-The Mathematica notebook rewrites this in branch form as:
-
-- `IntredshiftJMN := (gintredshift^3) * (Aint/r^2) * (1/krtint)`
-- `Intredshift    := (greddhift^3)  * (Aext/r^2) * (1/krtext)`
-- `Intblueshift   := -(gblueshift^3) * (Aext/r^2) * (1/krtext)`
-
-Those expressions are implemented directly in `src/intensity.py`.
-
-### 7. Ray-tracing and image construction
-
-Because the model is spherically symmetric, the observer image depends only on
-
-\[
-b=\sqrt{X^2+Y^2}.
-\]
-
-The notebook computes the intensity profile first as a function of `b`, then samples random polar coordinates `(b, \theta)` in the observer plane and evaluates the line-of-sight integrals there before using `ListDensityPlot`. The Python port keeps the same physics but builds a deterministic circular image from the radial profile, which is numerically cleaner and easier to reproduce.
-
-## Mathematica Notebook to Paper Cross-Reference
-
-### Metric sector
-
-- Notebook `Aint`, `Bint`: paper Eq. (19), JMN1 interior
-- Notebook `Aext`, `Bext`: Schwarzschild exterior matched to JMN1
-
-### Geodesics
-
-- Notebook `krtint`, `krtext`: paper Eq. (22) rewritten as the radial momentum magnitude
-- Turning-point condition solved by `NSolve[r / Sqrt[Aext] == b, r]`: paper Eq. (23)
-
-### Radiative transfer
-
-- Notebook `gintredshift`, `greddhift`, `gblueshift`: paper Eqs. (29)-(31)
-- Notebook `IntredshiftJMN`, `Intredshift`, `Intblueshift`: paper Eq. (32) with the emissivity from Eq. (26)
-
-### Figure 2(a) and Figure 2(b)
-
-The notebook also builds the Schwarzschild panels using the pure exterior branch:
-
-- `data1`
-- `data1re`
-- the corresponding random observer-sky sampling in `Intensityobssch`
-
-These are the paper's Schwarzschild intensity profile and shadow image, Figure 2(a) and Figure 2(b).
-
-### Figure 2(c)
-
-The notebook constructs the JMN1 intensity profile using:
-
-- `data2`
-- `data2re`
-- `Dataeff1 = Join[data2, data1]`
-- `Dataeff2 = Join[data2re, data1re]`
-- `ListLinePlot[{Dataeff1, Dataeff2}, ...]`
-
-The JMN1 part itself is `data2` and `data2re`, which integrate:
-
-- `IntredshiftJMN` from `r = 0` to `r = rb`
-- `Intredshift` from `r = rb` to `r = 50`
-
-for `0.001 <= b <= 3 sqrt(3)`.
-
-This corresponds to the middle-left panel of the paper, Figure 2(c), for `M0 = 0.7`.
-
-### Figure 2(d)
-
-The notebook constructs the JMN1 observer-sky image with:
-
-- `Intensityobsint`
-- `ListDensityPlot[{Intensityobssch, Intensityobsint}, ...]`
-
-The JMN1-specific image is `Intensityobsint`, which randomly samples `(X,Y)` through polar coordinates and evaluates the same JMN1 line-of-sight integrals. This is the middle-right panel of the paper, Figure 2(d), again with `M0 = 0.7`.
-
-## Python Code Structure
-
-```text
-src/
-  metric.py       Metric definitions and JMN1 matching relations
-  geodesics.py    Effective potential, radial null momentum, redshift
-  shadow.py       Shadow radii and circular boundaries
-  intensity.py    Emissivity and observed intensity integrals
-  raytracing.py   Circular observer-sky image construction
-  utils.py        Quadrature and root-finding helpers
-
-examples/
-  reproduce_figure2a.py
-  reproduce_figure2b.py
-  reproduce_figure2c.py
-  reproduce_figure2d.py
-```
-
-## Installation
+You probably did not install dependencies. Run:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Usage
+### Figures are not appearing on screen
 
-Reproduce the Schwarzschild intensity profile of Figure 2(a):
+The scripts save figures to the `figures/` folder. Open the PNG files there.
 
-```bash
-python examples/reproduce_figure2a.py
-```
+### I only want the final outputs
 
-Reproduce the Schwarzschild observer-sky image of Figure 2(b):
+Run:
 
 ```bash
-python examples/reproduce_figure2b.py
+python examples/run_all_figures.py
 ```
 
-Reproduce the JMN1 intensity profile of Figure 2(c):
-
-```bash
-python examples/reproduce_figure2c.py
-```
-
-Reproduce the JMN1 observer-sky image of Figure 2(d):
-
-```bash
-python examples/reproduce_figure2d.py
-```
-
-Outputs are written to:
-
-- `figures/figure2a_schwarzschild_profile.png`
-- `figures/figure2b_schwarzschild_shadow.png`
-- `figures/figure2c_jmn1_profile.png`
-- `figures/figure2d_jmn1_shadow.png`
-
-## Numerical Method
-
-- One-dimensional line-of-sight integrals are evaluated with `scipy.integrate.quad`.
-- Exterior turning points for `b > 3 sqrt(3)` are found by solving
-  \[
-  \frac{r}{\sqrt{g_{tt}(r)}} = b
-  \]
-  with a root outside the photon sphere, using `scipy.optimize.brentq`.
-- The 2D image is reconstructed from the radial intensity profile using interpolation on a Cartesian observer grid.
-
-## Reproducing Figure 2(a) to Figure 2(d)
-
-For the Schwarzschild case use:
-
-- `M = 1`
-
-For the JMN1 case use:
-
-- `M0 = 0.7`
-- `Rb = 2/M0`
-- `M_T = 1`
-
-These are exactly the values used in the provided Mathematica notebook and the paper caption for the Schwarzschild and JMN1 panels of Figure 2.
-
-## Original Mathematica Workflow
-
-The notebook flow is:
-
-1. Set `M0` and `rb`
-2. Define the JMN1 interior and exterior metric functions
-3. Build `k^r` for interior and exterior null geodesics
-4. Build redshift and blueshift factors for the infalling emitter
-5. Form the branch-wise intensity integrands
-6. Integrate over radius for selected impact parameters
-7. Assemble the intensity-vs-`b` curves
-8. Sample the observer plane and produce the final density plot
-
-The Python port mirrors that sequence, but separates each physical step into a dedicated module.
-
-## References
-
-1. A. B. Joshi, D. Dey, P. S. Joshi, and P. Bambhaniya, *Shadow of a naked singularity without photon sphere*, Phys. Rev. D **102**, 024022 (2020).
-2. P. S. Joshi, D. Malafarina, and R. Narayan, works on JMN naked singularity spacetimes cited in the paper.
+Then open the files in `figures/`.
 
 ## Citation
 
-If you use this code, cite the paper whose Mathematica implementation is ported here, and note explicitly that the reproduced Schwarzschild and JMN1 images correspond to Figure 2(a)-2(d):
+If you use this repository, cite the original paper:
 
 ```bibtex
 @article{Joshi:2020tlq,
