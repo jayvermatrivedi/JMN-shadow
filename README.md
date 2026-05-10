@@ -1,10 +1,10 @@
 # JMN Shadow and Ray Tracing in Mathematica and Python
 
-This repository ports a Mathematica implementation of null geodesics, shadow formation, and radiative transfer in the Joshi-Malafarina-Narayan (JMN1) naked singularity spacetime to a modular Python codebase. The reference paper in this folder is:
+This repository ports a Mathematica implementation of null geodesics, shadow formation, and radiative transfer in the Schwarzschild and Joshi-Malafarina-Narayan (JMN1) spacetimes to a modular Python codebase. The reference paper in this folder is:
 
 - Ashok B. Joshi, Dipanjan Dey, Pankaj S. Joshi, and Parth Bambhaniya, *Shadow of a naked singularity without photon sphere*, Phys. Rev. D **102**, 024022 (2020), DOI: `10.1103/PhysRevD.102.024022`.
 
-The Python examples reproduce the JMN1 plots corresponding to Figure 2(c) and Figure 2(d) of that paper.
+The Python examples reproduce the Schwarzschild plots corresponding to Figure 2(a) and Figure 2(b), and the JMN1 plots corresponding to Figure 2(c) and Figure 2(d), of that paper.
 
 ## Scientific Motivation
 
@@ -13,6 +13,8 @@ The central question is whether compact objects with naked singularities can pro
 - Schwarzschild black holes
 - JMN1 naked singularities
 - a second asymptotically flat naked singularity without a photon sphere
+
+This Python repository currently implements the Schwarzschild and JMN1 cases only. The second naked-singularity model from the paper is intentionally left out.
 
 The observable is the intensity pattern on the observer sky produced by light emitted from an optically thin, spherically symmetric, freely infalling accretion flow. The shadow is the dark central region associated with geodesics that cannot connect the bright background to the observer in the usual way.
 
@@ -59,6 +61,18 @@ so the exterior metric reduces numerically to Schwarzschild with
 A_{\rm ext}(r)=1-\frac{2}{r}, \qquad B_{\rm ext}(r)=\left(1-\frac{2}{r}\right)^{-1}.
 \]
 
+### 1b. Schwarzschild metric used in the code
+
+For the Schwarzschild reference case, the code uses
+
+\[
+ds^2 = -\left(1-\frac{2M}{r}\right)dt^2
+\;+\; \left(1-\frac{2M}{r}\right)^{-1}dr^2
+\;+\; r^2 d\Omega^2,
+\]
+
+with `M = 1` for the Figure 2(a)/(b) reproduction.
+
 ### 2. Meaning of the parameters
 
 - `M0`: dimensionless JMN1 parameter, with `0 < M0 < 1`
@@ -73,6 +87,13 @@ For the notebook and for Figure 2(c)/(d):
 - `M0 = 0.7`
 - `Rb = 2.857142857...`
 - `M_T = 1`
+- `r_ph = 3`
+- `b_ph = 3\sqrt{3} = 5.1961524227...`
+
+For the Schwarzschild case used in Figure 2(a)/(b):
+
+- `M = 1`
+- `r_h = 2`
 - `r_ph = 3`
 - `b_ph = 3\sqrt{3} = 5.1961524227...`
 
@@ -206,6 +227,16 @@ The notebook computes the intensity profile first as a function of `b`, then sam
 - Notebook `gintredshift`, `greddhift`, `gblueshift`: paper Eqs. (29)-(31)
 - Notebook `IntredshiftJMN`, `Intredshift`, `Intblueshift`: paper Eq. (32) with the emissivity from Eq. (26)
 
+### Figure 2(a) and Figure 2(b)
+
+The notebook also builds the Schwarzschild panels using the pure exterior branch:
+
+- `data1`
+- `data1re`
+- the corresponding random observer-sky sampling in `Intensityobssch`
+
+These are the paper's Schwarzschild intensity profile and shadow image, Figure 2(a) and Figure 2(b).
+
 ### Figure 2(c)
 
 The notebook constructs the JMN1 intensity profile using:
@@ -246,6 +277,8 @@ src/
   utils.py        Quadrature and root-finding helpers
 
 examples/
+  reproduce_figure2a.py
+  reproduce_figure2b.py
   reproduce_figure2c.py
   reproduce_figure2d.py
 ```
@@ -259,6 +292,18 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+
+Reproduce the Schwarzschild intensity profile of Figure 2(a):
+
+```bash
+python examples/reproduce_figure2a.py
+```
+
+Reproduce the Schwarzschild observer-sky image of Figure 2(b):
+
+```bash
+python examples/reproduce_figure2b.py
+```
 
 Reproduce the JMN1 intensity profile of Figure 2(c):
 
@@ -274,6 +319,8 @@ python examples/reproduce_figure2d.py
 
 Outputs are written to:
 
+- `figures/figure2a_schwarzschild_profile.png`
+- `figures/figure2b_schwarzschild_shadow.png`
 - `figures/figure2c_jmn1_profile.png`
 - `figures/figure2d_jmn1_shadow.png`
 
@@ -287,15 +334,19 @@ Outputs are written to:
   with a root outside the photon sphere, using `scipy.optimize.brentq`.
 - The 2D image is reconstructed from the radial intensity profile using interpolation on a Cartesian observer grid.
 
-## Reproducing Figure 2(c) and Figure 2(d)
+## Reproducing Figure 2(a) to Figure 2(d)
 
-Use the built-in notebook parameter set:
+For the Schwarzschild case use:
+
+- `M = 1`
+
+For the JMN1 case use:
 
 - `M0 = 0.7`
 - `Rb = 2/M0`
 - `M_T = 1`
 
-These are exactly the values used in the provided Mathematica notebook and the paper caption for the JMN1 panels of Figure 2.
+These are exactly the values used in the provided Mathematica notebook and the paper caption for the Schwarzschild and JMN1 panels of Figure 2.
 
 ## Original Mathematica Workflow
 
@@ -319,7 +370,7 @@ The Python port mirrors that sequence, but separates each physical step into a d
 
 ## Citation
 
-If you use this code, cite the paper whose Mathematica implementation is ported here, and note explicitly that the reproduced JMN1 images correspond to Figure 2(c) and Figure 2(d):
+If you use this code, cite the paper whose Mathematica implementation is ported here, and note explicitly that the reproduced Schwarzschild and JMN1 images correspond to Figure 2(a)-2(d):
 
 ```bibtex
 @article{Joshi:2020tlq,

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from .geodesics import radial_null_momentum, redshift_factor
-from .metric import JMN1Spacetime
+from .metric import JMN1Spacetime, SchwarzschildMetric
 from .utils import IntegrationConfig, find_outer_turning_point, quad_real
 
 
@@ -120,6 +120,75 @@ def jmn1_intensity(impact_parameter: float, spacetime: JMN1Spacetime, config: Ra
     return incoming + outgoing
 
 
+def schwarzschild_intensity(
+    impact_parameter: float,
+    metric: SchwarzschildMetric,
+    config: RadiativeTransferConfig,
+) -> float:
+    """Observed intensity for Schwarzschild spacetime.
+
+    This uses the same exterior branch structure as the Mathematica notebook:
+
+    - for `b < b_crit`, only the outgoing branch from the horizon-near region to
+      the observer contributes
+    - for `b >= b_crit`, the ray has an outer turning point and the incoming plus
+      outgoing branches both contribute
+
+    The paper's Schwarzschild panels use `M_T = 1`, so the horizon is at `r=2`.
+    """
+
+    b_crit = metric.critical_impact_parameter
+    integration = config.integration
+    horizon_floor = metric.horizon_radius * (1.0 + 1.0e-8)
+
+    if impact_parameter < b_crit:
+        return quad_real(
+            lambda r: line_integrand(
+                metric.g_tt(r),
+                metric.g_rr(r),
+                r,
+                impact_parameter,
+                outgoing=True,
+            ),
+            horizon_floor,
+            config.r_observer,
+            config=integration,
+        )
+
+    turning_point = find_outer_turning_point(
+        impact_parameter,
+        metric.g_tt,
+        metric.photon_sphere_radius,
+        config.r_observer,
+    )
+
+    incoming = quad_real(
+        lambda r: line_integrand(
+            metric.g_tt(r),
+            metric.g_rr(r),
+            r,
+            impact_parameter,
+            outgoing=False,
+        ),
+        config.r_observer,
+        turning_point,
+        config=integration,
+    )
+    outgoing = quad_real(
+        lambda r: line_integrand(
+            metric.g_tt(r),
+            metric.g_rr(r),
+            r,
+            impact_parameter,
+            outgoing=True,
+        ),
+        turning_point,
+        config.r_observer,
+        config=integration,
+    )
+    return incoming + outgoing
+
+
 def radial_intensity_profile(
     impact_parameters: np.ndarray,
     spacetime: JMN1Spacetime,
@@ -128,4 +197,15 @@ def radial_intensity_profile(
     """Evaluate the circularly symmetric intensity profile `I_o(b)`."""
 
     values = [jmn1_intensity(float(b), spacetime, config) for b in impact_parameters]
+    return np.asarray(values, dtype=float)
+
+
+def schwarzschild_radial_intensity_profile(
+    impact_parameters: np.ndarray,
+    metric: SchwarzschildMetric,
+    config: RadiativeTransferConfig,
+) -> np.ndarray:
+    """Evaluate the circularly symmetric Schwarzschild intensity profile `I_o(b)`."""
+
+    values = [schwarzschild_intensity(float(b), metric, config) for b in impact_parameters]
     return np.asarray(values, dtype=float)
