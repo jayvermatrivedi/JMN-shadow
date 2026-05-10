@@ -1,20 +1,28 @@
 # JMN Shadow Reproduction Toolkit
 
-This repository is a beginner-friendly reproduction package for the paper:
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jayvermatrivedi/JMN-shadow/blob/main/notebooks/JMN_Shadow_Google_Colab.ipynb)
 
-- Ashok B. Joshi, Dipanjan Dey, Pankaj S. Joshi, and Parth Bambhaniya, *Shadow of a naked singularity without photon sphere*, Phys. Rev. D **102**, 024022 (2020)
-- DOI: `10.1103/PhysRevD.102.024022`
+Beginner-friendly reproduction code for the paper *Shadow of a naked singularity without photon sphere* by Ashok B. Joshi, Dipanjan Dey, Pankaj S. Joshi, and Parth Bambhaniya, Phys. Rev. D **102**, 024022 (2020), DOI: `10.1103/PhysRevD.102.024022`.
 
-It contains:
+This repository is designed so a first-time user can:
 
-- a cleaned Python implementation for the Schwarzschild and JMN1 cases
-- a renamed copy of the original Mathematica notebook from this project
-- a commented Mathematica `.wl` script that explains the workflow step by step
-- a Google Colab notebook for users who do not want to install Python locally
+- run the figures in Google Colab without local setup
+- reproduce the Schwarzschild and JMN1 shadow plots in Python
+- inspect a renamed copy of the original Mathematica notebook
+- read a step-by-step Mathematica explanation before opening the notebook
 
-Open directly in Colab:
+## Quick Links
 
-- `https://colab.research.google.com/github/jayvermatrivedi/JMN-shadow/blob/main/notebooks/JMN_Shadow_Google_Colab.ipynb`
+- Run online in Colab:
+  `https://colab.research.google.com/github/jayvermatrivedi/JMN-shadow/blob/main/notebooks/JMN_Shadow_Google_Colab.ipynb`
+- Python one-command runner:
+  [examples/run_all_figures.py](examples/run_all_figures.py)
+- Original notebook, renamed clearly:
+  [mathematica/jmn1_shadow_reproduction_m0p7_original.nb](mathematica/jmn1_shadow_reproduction_m0p7_original.nb)
+- Explained Mathematica script:
+  [mathematica/jmn1_shadow_reproduction_explained.wl](mathematica/jmn1_shadow_reproduction_explained.wl)
+- Mathematica walkthrough:
+  [docs/MATHEMATICA_WALKTHROUGH.md](docs/MATHEMATICA_WALKTHROUGH.md)
 
 The repository currently supports:
 
